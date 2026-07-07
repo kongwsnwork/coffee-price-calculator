@@ -2,7 +2,19 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('coffee-calc-theme');
+    var theme = (saved === 'light' || saved === 'dark')
+      ? saved
+      : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (e) {}
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" id="themeColorMeta" content="#0d0d0d">
 <title>Coffee Price Calculator</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☕</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,16 +25,36 @@
     color-scheme: dark;
     --bg: #0d0d0d;
     --card-bg: #1a1a1a;
-    --border: #2e2e2e;
+    --border: #2a2a2a;
     --text-main: #f5f5f5;
-    --text-muted: #a8a8a8;
-    --text-faint: #707070;
+    --text-muted: #b0b0b0;
+    --text-faint: #8f8f8f;
     --accent: #ff8a00;
+    --accent-ink: #17120a;
     --input-border: #3a3a3a;
     --input-focus: #ff8a00;
     --input-bg: #242424;
     --chip-bg: #242424;
     --badge-bg: #3a2410;
+    --error: #ff7a6e;
+  }
+
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f6f3ee;
+    --card-bg: #ffffff;
+    --border: #e6e0d6;
+    --text-main: #221f1a;
+    --text-muted: #57534e;
+    --text-faint: #78716c;
+    --accent: #c2660a;
+    --accent-ink: #fffaf3;
+    --input-border: #ddd5c8;
+    --input-focus: #c2660a;
+    --input-bg: #fbf9f5;
+    --chip-bg: #f1ebe0;
+    --badge-bg: #fbe7c8;
+    --error: #c0392b;
   }
 
   * { box-sizing: border-box; }
@@ -37,6 +69,7 @@
     font-family: 'Noto Sans Thai', system-ui, -apple-system, sans-serif;
     color: var(--text-main);
     padding: 24px;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   .card {
@@ -47,11 +80,13 @@
     border-radius: 16px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.6), 0 8px 30px rgba(255,138,0,0.08);
     padding: 28px 28px 24px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
   }
 
   .header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: space-between;
     gap: 12px;
     margin-bottom: 4px;
   }
@@ -68,6 +103,37 @@
     font-size: 13.5px;
     color: var(--text-muted);
   }
+
+  .icon-btn {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: 1px solid var(--input-border);
+    background: var(--chip-bg);
+    color: var(--text-main);
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.1s ease;
+  }
+
+  .icon-btn:hover { border-color: var(--input-focus); }
+  .icon-btn:active { transform: scale(0.92); }
+
+  .icon-btn:focus-visible,
+  .chip:focus-visible,
+  .text-btn:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .icon-btn svg { width: 18px; height: 18px; }
+  .icon-moon { display: none; }
+  :root[data-theme="light"] .icon-sun { display: none; }
+  :root[data-theme="light"] .icon-moon { display: block; }
 
   hr {
     border: none;
@@ -114,7 +180,7 @@
   input[type="number"] {
     width: 100%;
     padding: 11px 14px;
-    font-size: 15px;
+    font-size: 16px;
     border: 1px solid var(--input-border);
     border-radius: 10px;
     background: var(--input-bg);
@@ -135,6 +201,40 @@
     opacity: 1;
   }
 
+  input.invalid {
+    border-color: var(--error);
+  }
+
+  .field-error {
+    display: none;
+    margin: 8px 0 0;
+    font-size: 12.5px;
+    color: var(--error);
+  }
+
+  .field-error.visible {
+    display: block;
+  }
+
+  .section-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin: 0 0 10px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 340px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+
   .chip-group {
     display: flex;
     flex-wrap: wrap;
@@ -143,7 +243,11 @@
   }
 
   .chip {
-    padding: 6px 14px;
+    min-height: 40px;
+    padding: 8px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 999px;
     border: 1px solid var(--input-border);
     background: var(--chip-bg);
@@ -151,7 +255,7 @@
     font-family: inherit;
     color: var(--text-muted);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
   }
 
   .chip:hover {
@@ -159,10 +263,12 @@
     color: var(--text-main);
   }
 
+  .chip:active { transform: scale(0.96); }
+
   .chip.active {
     background: var(--accent);
     border-color: var(--accent);
-    color: #0d0d0d;
+    color: var(--accent-ink);
     font-weight: 700;
   }
 
@@ -180,8 +286,8 @@
 
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: var(--accent);
     border: 3px solid var(--card-bg);
@@ -190,8 +296,8 @@
   }
 
   input[type="range"]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: var(--accent);
     border: 3px solid var(--card-bg);
@@ -234,17 +340,145 @@
     font-weight: 700;
     color: var(--text-main);
     white-space: nowrap;
+    display: inline-block;
   }
 
   .result-value.accent {
     color: var(--accent);
   }
 
-  footer {
+  .result-value.pulse {
+    animation: valuePulse 220ms ease-out;
+  }
+
+  @keyframes valuePulse {
+    0% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+
+  .disclosure-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px dashed var(--input-border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .disclosure-btn:hover {
+    border-color: var(--input-focus);
+    color: var(--text-main);
+  }
+
+  .disclosure-btn svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+  }
+
+  .disclosure-btn[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+
+  .disclosure-panel {
+    margin-top: 16px;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
     margin-top: 22px;
+  }
+
+  .text-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 38px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--input-border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  }
+
+  .text-btn svg { width: 15px; height: 15px; }
+
+  .text-btn:hover {
+    border-color: var(--input-focus);
+    color: var(--text-main);
+  }
+
+  .text-btn:active { transform: scale(0.96); }
+
+  .status-msg {
+    min-height: 16px;
+    margin: 10px 0 0;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--accent);
+  }
+
+  footer {
+    margin-top: 14px;
     text-align: center;
     font-size: 12px;
     color: var(--text-faint);
+  }
+
+  .output-col {
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 380px) {
+    .card { padding: 22px 18px 18px; }
+  }
+
+  @media (min-width: 720px) {
+    body { padding: 40px; }
+
+    .card {
+      max-width: 680px;
+      padding: 36px 40px 32px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 36px;
+      align-items: start;
+    }
+
+    .output-col {
+      border-top: none;
+      border-left: 1px solid var(--border);
+      padding-top: 0;
+      padding-left: 32px;
+      margin-top: 0;
+      position: sticky;
+      top: 24px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .result-value.pulse { animation: none; }
+    .icon-btn, .chip, .text-btn, .disclosure-btn, .disclosure-btn svg { transition: none; }
   }
 </style>
 </head>
@@ -252,56 +486,103 @@
 
 <div class="card">
   <div class="header">
-    <h1 class="title">Coffee Price Calculator</h1>
-  </div>
-  <p class="subtitle">คำนวณต้นทุนกาแฟต่อกรัม และต่อแก้ว</p>
-
-  <hr>
-
-  <div class="field">
-    <label for="price">ราคา (บาท)</label>
-    <input type="number" id="price" value="158" min="0" step="any" inputmode="decimal">
-  </div>
-
-  <div class="field">
-    <label for="weight">น้ำหนักกาแฟ (กรัม)</label>
-    <input type="number" id="weight" value="200" min="0" step="any" inputmode="decimal">
-    <div class="chip-group" id="weightChips">
-      <button type="button" class="chip" data-value="100">100 ก.</button>
-      <button type="button" class="chip" data-value="200">200 ก.</button>
-      <button type="button" class="chip" data-value="250">250 ก.</button>
-      <button type="button" class="chip" data-value="500">500 ก.</button>
-      <button type="button" class="chip" data-value="1000">1 กก.</button>
+    <div>
+      <h1 class="title">☕ Coffee Price Calculator</h1>
+      <p class="subtitle">คำนวณต้นทุนกาแฟต่อกรัม ต่อแก้ว และต่อเดือน</p>
     </div>
-  </div>
-
-  <div class="field">
-    <div class="label-row">
-      <label for="usage">ปริมาณที่ใช้ต่อครั้ง (กรัม)</label>
-      <span class="value-badge" id="usageValue">16 ก.</span>
-    </div>
-    <input type="range" id="usage" value="16" min="5" max="40" step="0.5">
-    <div class="range-minmax"><span>5 ก.</span><span>40 ก.</span></div>
+    <button type="button" id="themeToggle" class="icon-btn" aria-label="สลับธีม">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
   </div>
 
   <hr>
 
-  <div class="results">
-    <div class="result-row">
-      <span class="result-label">ราคาต่อกรัม</span>
-      <span class="result-value" id="pricePerGram">-</span>
+  <div class="layout">
+    <div class="input-col">
+      <div class="field">
+        <div class="section-label">ต้นทุนถุงกาแฟ</div>
+        <div class="grid-2">
+          <div>
+            <label for="price">ราคา (บาท)</label>
+            <input type="number" id="price" value="180" min="0" step="any" inputmode="decimal">
+          </div>
+          <div>
+            <label for="weight">น้ำหนัก (กรัม)</label>
+            <input type="number" id="weight" value="250" min="0" step="any" inputmode="decimal" aria-describedby="weightError">
+          </div>
+        </div>
+        <div class="chip-group" id="weightChips">
+          <button type="button" class="chip" data-value="100">100 ก.</button>
+          <button type="button" class="chip" data-value="200">200 ก.</button>
+          <button type="button" class="chip" data-value="250">250 ก.</button>
+          <button type="button" class="chip" data-value="500">500 ก.</button>
+        </div>
+        <p class="field-error" id="weightError" role="alert">กรุณากรอกน้ำหนักมากกว่า 0 กรัม</p>
+      </div>
+
+      <div class="field">
+        <div class="section-label">การชงต่อแก้ว</div>
+        <div class="label-row">
+          <label for="usage">ปริมาณที่ใช้ต่อครั้ง (กรัม)</label>
+          <span class="value-badge" id="usageValue">16 ก.</span>
+        </div>
+        <input type="range" id="usage" value="16" min="5" max="40" step="0.5">
+        <div class="range-minmax"><span>5 ก.</span><span>40 ก.</span></div>
+      </div>
     </div>
-    <div class="result-row">
-      <span class="result-label">ราคาต่อแก้ว</span>
-      <span class="result-value" id="pricePerCup">-</span>
-    </div>
-    <div class="result-row">
-      <span class="result-label">ชงได้ประมาณ</span>
-      <span class="result-value accent" id="cupsEstimate">-</span>
+
+    <div class="output-col">
+      <div class="results" aria-live="polite">
+        <div class="result-row">
+          <span class="result-label">ราคาต่อกรัม</span>
+          <span class="result-value" id="pricePerGram">-</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">ราคาต่อแก้ว</span>
+          <span class="result-value" id="pricePerCup">-</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">ชงได้ประมาณ</span>
+          <span class="result-value accent" id="cupsEstimate">-</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <footer>ใส่ตัวเลขเพื่อคำนวณอัตโนมัติ</footer>
+  <button type="button" id="monthlyToggle" class="disclosure-btn" aria-expanded="false" aria-controls="monthlyPanel">
+    <span>ประมาณการค่าใช้จ่ายต่อเดือน</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+  </button>
+  <div class="disclosure-panel" id="monthlyPanel" hidden>
+    <div class="field">
+      <label for="cupsPerDay">ดื่มกี่แก้วต่อวัน</label>
+      <input type="number" id="cupsPerDay" value="1" min="0" step="1" inputmode="numeric">
+      <div class="chip-group" id="cupsPerDayChips">
+        <button type="button" class="chip" data-value="1">1 แก้ว</button>
+        <button type="button" class="chip" data-value="2">2 แก้ว</button>
+        <button type="button" class="chip" data-value="3">3 แก้ว</button>
+        <button type="button" class="chip" data-value="4">4 แก้ว</button>
+      </div>
+    </div>
+    <div class="result-row">
+      <span class="result-label">ค่าใช้จ่ายต่อเดือน (30 วัน)</span>
+      <span class="result-value accent" id="monthlyCost">-</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="actions">
+    <button type="button" id="copyBtn" class="text-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg>
+      คัดลอกผลลัพธ์
+    </button>
+    <button type="button" id="resetBtn" class="text-btn">รีเซ็ตค่าเริ่มต้น</button>
+  </div>
+  <p class="status-msg" id="statusMsg" role="status"></p>
+
+  <footer>ใส่ตัวเลขเพื่อคำนวณอัตโนมัติ · บันทึกค่าไว้ในเครื่องนี้ให้อัตโนมัติ</footer>
 </div>
 
 <script>
@@ -310,18 +591,34 @@
   const usageInput = document.getElementById('usage');
   const usageValueEl = document.getElementById('usageValue');
   const weightChips = document.querySelectorAll('#weightChips .chip');
+  const weightErrorEl = document.getElementById('weightError');
+  const cupsPerDayInput = document.getElementById('cupsPerDay');
+  const cupsPerDayChips = document.querySelectorAll('#cupsPerDayChips .chip');
 
   const pricePerGramEl = document.getElementById('pricePerGram');
   const pricePerCupEl = document.getElementById('pricePerCup');
   const cupsEstimateEl = document.getElementById('cupsEstimate');
+  const monthlyCostEl = document.getElementById('monthlyCost');
+
+  const monthlyToggle = document.getElementById('monthlyToggle');
+  const monthlyPanel = document.getElementById('monthlyPanel');
+  const themeToggle = document.getElementById('themeToggle');
+  const themeColorMeta = document.getElementById('themeColorMeta');
+  const copyBtn = document.getElementById('copyBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const statusMsg = document.getElementById('statusMsg');
 
   const STORAGE_KEY = 'coffee-calc-values';
+  const THEME_KEY = 'coffee-calc-theme';
+  const DEFAULTS = { price: '180', weight: '250', usage: '16', cupsPerDay: '1' };
+  let statusTimer = null;
 
   function saveValues() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       price: priceInput.value,
       weight: weightInput.value,
-      usage: usageInput.value
+      usage: usageInput.value,
+      cupsPerDay: cupsPerDayInput.value
     }));
   }
 
@@ -332,6 +629,7 @@
       if (saved.price) priceInput.value = saved.price;
       if (saved.weight) weightInput.value = saved.weight;
       if (saved.usage) usageInput.value = saved.usage;
+      if (saved.cupsPerDay) cupsPerDayInput.value = saved.cupsPerDay;
     } catch (e) {
       // ignore corrupted storage
     }
@@ -340,6 +638,13 @@
   function updateWeightChips() {
     const val = parseFloat(weightInput.value);
     weightChips.forEach(chip => {
+      chip.classList.toggle('active', parseFloat(chip.dataset.value) === val);
+    });
+  }
+
+  function updateCupsPerDayChips() {
+    const val = parseFloat(cupsPerDayInput.value);
+    cupsPerDayChips.forEach(chip => {
       chip.classList.toggle('active', parseFloat(chip.dataset.value) === val);
     });
   }
@@ -362,6 +667,14 @@
     });
   });
 
+  cupsPerDayChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      cupsPerDayInput.value = chip.dataset.value;
+      updateCupsPerDayChips();
+      calculate();
+    });
+  });
+
   function formatNumber(value, decimals) {
     return value.toLocaleString('th-TH', {
       minimumFractionDigits: decimals,
@@ -369,32 +682,108 @@
     });
   }
 
+  function setText(el, text) {
+    if (el.textContent === text) return;
+    el.textContent = text;
+    el.classList.remove('pulse');
+    void el.offsetWidth;
+    el.classList.add('pulse');
+  }
+
   function calculate() {
     saveValues();
     const price = parseFloat(priceInput.value);
     const weight = parseFloat(weightInput.value);
     const usage = parseFloat(usageInput.value);
+    const cupsPerDay = parseFloat(cupsPerDayInput.value);
 
-    if (!isFinite(price) || !isFinite(weight) || weight <= 0) {
-      pricePerGramEl.textContent = '-';
-      pricePerCupEl.textContent = '-';
-      cupsEstimateEl.textContent = '-';
+    const weightInvalid = !isFinite(weight) || weight <= 0;
+    weightInput.classList.toggle('invalid', weightInvalid);
+    weightErrorEl.classList.toggle('visible', weightInvalid);
+    weightInput.setAttribute('aria-invalid', weightInvalid ? 'true' : 'false');
+
+    if (!isFinite(price) || weightInvalid) {
+      setText(pricePerGramEl, '-');
+      setText(pricePerCupEl, '-');
+      setText(cupsEstimateEl, '-');
+      setText(monthlyCostEl, '-');
       return;
     }
 
     const pricePerGram = price / weight;
-    pricePerGramEl.textContent = `${formatNumber(pricePerGram, 2)} บาท/กรัม`;
+    setText(pricePerGramEl, `${formatNumber(pricePerGram, 2)} บาท/กรัม`);
 
     if (isFinite(usage) && usage > 0) {
       const pricePerCup = pricePerGram * usage;
       const cupsEstimate = weight / usage;
-      pricePerCupEl.textContent = `${formatNumber(pricePerCup, 2)} บาท`;
-      cupsEstimateEl.textContent = `${formatNumber(cupsEstimate, 1)} แก้ว`;
+      setText(pricePerCupEl, `${formatNumber(pricePerCup, 2)} บาท`);
+      setText(cupsEstimateEl, `${formatNumber(cupsEstimate, 1)} แก้ว`);
+
+      if (isFinite(cupsPerDay) && cupsPerDay >= 0) {
+        const monthlyCost = pricePerCup * cupsPerDay * 30;
+        setText(monthlyCostEl, `${formatNumber(monthlyCost, 2)} บาท`);
+      } else {
+        setText(monthlyCostEl, '-');
+      }
     } else {
-      pricePerCupEl.textContent = '-';
-      cupsEstimateEl.textContent = '-';
+      setText(pricePerCupEl, '-');
+      setText(cupsEstimateEl, '-');
+      setText(monthlyCostEl, '-');
     }
   }
+
+  function showStatus(message) {
+    statusMsg.textContent = message;
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => { statusMsg.textContent = ''; }, 2500);
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    themeToggle.setAttribute('aria-label', theme === 'light' ? 'สลับเป็นธีมมืด' : 'สลับเป็นธีมสว่าง');
+    themeColorMeta.setAttribute('content', theme === 'light' ? '#f6f3ee' : '#0d0d0d');
+  }
+
+  monthlyToggle.addEventListener('click', () => {
+    const isOpen = monthlyToggle.getAttribute('aria-expanded') === 'true';
+    monthlyToggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+    monthlyPanel.hidden = isOpen;
+  });
+
+  themeToggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+    localStorage.setItem(THEME_KEY, next);
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    const summary = [
+      `ราคาต่อกรัม: ${pricePerGramEl.textContent}`,
+      `ราคาต่อแก้ว: ${pricePerCupEl.textContent}`,
+      `ชงได้ประมาณ: ${cupsEstimateEl.textContent}`,
+      `ค่าใช้จ่ายต่อเดือน (30 วัน): ${monthlyCostEl.textContent}`
+    ].join('\n');
+
+    try {
+      await navigator.clipboard.writeText(summary);
+      showStatus('คัดลอกผลลัพธ์แล้ว ✓');
+    } catch (e) {
+      showStatus('คัดลอกไม่สำเร็จ กรุณาลองใหม่');
+    }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    priceInput.value = DEFAULTS.price;
+    weightInput.value = DEFAULTS.weight;
+    usageInput.value = DEFAULTS.usage;
+    cupsPerDayInput.value = DEFAULTS.cupsPerDay;
+    updateWeightChips();
+    updateCupsPerDayChips();
+    updateUsageSlider();
+    calculate();
+    showStatus('รีเซ็ตค่าเริ่มต้นแล้ว');
+  });
 
   priceInput.addEventListener('input', calculate);
 
@@ -408,8 +797,15 @@
     calculate();
   });
 
+  cupsPerDayInput.addEventListener('input', () => {
+    updateCupsPerDayChips();
+    calculate();
+  });
+
+  applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
   loadValues();
   updateWeightChips();
+  updateCupsPerDayChips();
   updateUsageSlider();
   calculate();
 </script>
