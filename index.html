@@ -166,6 +166,7 @@
   .chip:focus-visible,
   .text-btn:focus-visible,
   .equiv-btn:focus-visible,
+  .game-open-btn:focus-visible,
   input:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
@@ -668,6 +669,173 @@
     .mobile-bar.visible { display: flex; }
   }
 
+  .game-entry {
+    margin-top: 14px;
+    text-align: center;
+  }
+
+  .game-open-btn {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 999px;
+    background: var(--accent-strong);
+    color: var(--accent-ink);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(255, 138, 0, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .game-open-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(255, 138, 0, 0.4);
+  }
+
+  .game-open-btn:active { transform: scale(0.96); }
+
+  .game-open-btn .play-icon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+
+  .game-open-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -60%;
+    width: 40%;
+    background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    animation: btnShine 4s ease-in-out infinite;
+  }
+
+  @keyframes btnShine {
+    0% { left: -60%; }
+    30% { left: 130%; }
+    100% { left: 130%; }
+  }
+
+  .game-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .game-overlay[hidden] { display: none; }
+
+  .game-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .game-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .game-top .icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .game-stage {
+    text-align: center;
+    padding: 8px 0 4px;
+    border-radius: 12px;
+    touch-action: none;
+    cursor: pointer;
+  }
+
+  .game-pour {
+    height: 22px;
+    font-size: 15px;
+    opacity: 0;
+  }
+
+  .game-stage.pouring .game-pour {
+    opacity: 1;
+    animation: pourDrop 0.35s linear infinite;
+  }
+
+  @keyframes pourDrop {
+    from { transform: translateY(-8px); opacity: 0.3; }
+    to { transform: translateY(10px); opacity: 1; }
+  }
+
+  .game-grams {
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text-main);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .game-bar {
+    position: relative;
+    height: 10px;
+    margin: 16px 8px 4px;
+    border-radius: 999px;
+    background: var(--input-bg);
+  }
+
+  .game-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: var(--accent-strong);
+  }
+
+  .game-bar-target {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    left: 80%;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--text-main);
+    opacity: 0.55;
+  }
+
+  .game-msg {
+    min-height: 44px;
+    margin: 12px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+
+  .game-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
   .output-col {
     border-top: 1px solid var(--border);
     padding-top: 20px;
@@ -715,6 +883,9 @@
     .usage-mood.swap { animation: none; }
     .equiv-btn.pop { animation: none; }
     .equiv-btn { transition: none; }
+    .game-stage.pouring .game-pour { animation: none; }
+    .game-open-btn { transition: none; }
+    .game-open-btn::after { animation: none; display: none; }
     .icon-btn, .chip, .text-btn, .icon-btn svg { transition: none; }
     .steam { animation: none; display: none; }
   }
@@ -838,6 +1009,14 @@
   </div>
   <p class="status-msg" id="statusMsg" role="status"></p>
 
+  <div class="game-entry">
+    <button type="button" id="gameOpenBtn" class="game-open-btn">
+      <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+      เล่นเกมมือบาริสต้า
+      <span aria-hidden="true">☕</span>
+    </button>
+  </div>
+
   <footer>ใส่ตัวเลขเพื่อคำนวณอัตโนมัติ · บันทึกค่าไว้ในเครื่องนี้ให้อัตโนมัติ</footer>
 </div>
 
@@ -845,6 +1024,30 @@
   <span aria-hidden="true">ราคาต่อแก้ว</span>
   <span class="result-value" id="mobileBarValue" aria-hidden="true">-</span>
 </button>
+
+<div class="game-overlay" id="gameOverlay" hidden>
+  <div class="game-card" role="dialog" aria-modal="true" aria-label="เกมมือบาริสต้า กะให้ได้ 16 กรัม">
+    <div class="game-top">
+      <span id="gameRoundLabel">ตาที่ 1/5</span>
+      <span id="gameScoreLabel">คะแนนรวม 0</span>
+      <button type="button" id="gameCloseBtn" class="icon-btn" aria-label="ปิดเกม">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    <div class="game-stage" id="gameStage">
+      <div class="game-pour" aria-hidden="true">🫘</div>
+      <div class="game-grams" id="gameGrams" aria-hidden="true">0.0 g</div>
+      <div class="game-bar" aria-hidden="true">
+        <div class="game-bar-fill" id="gameBarFill"></div>
+        <div class="game-bar-target"></div>
+      </div>
+      <p class="game-msg" id="gameMsg" role="status">กดค้างเพื่อเทเมล็ด ปล่อยให้ได้ 16.0 g พอดี</p>
+    </div>
+    <div class="game-actions">
+      <button type="button" id="gameReplayBtn" class="text-btn" hidden>เล่นอีกครั้ง</button>
+    </div>
+  </div>
+</div>
 
 <script>
   const priceInput = document.getElementById('price');
@@ -1243,7 +1446,7 @@
     if (cupClicks >= 5) {
       cupClicks = 0;
       rainBeans();
-      showStatus('คอกาแฟตัวจริง! ☕🔥');
+      showStatus('คอกาแฟตัวจริง! ☕🔥 มีเกมซ่อนอยู่ท้ายหน้านะ 👀');
     } else {
       celebrate(coffeeIcon, ['💨'], 3);
     }
@@ -1326,6 +1529,168 @@
     updateCupsPerDayChips();
     calculate();
   });
+
+  // ---------- เกมมือบาริสต้า ----------
+  const gameOverlay = document.getElementById('gameOverlay');
+  const gameOpenBtn = document.getElementById('gameOpenBtn');
+  const gameCloseBtn = document.getElementById('gameCloseBtn');
+  const gameReplayBtn = document.getElementById('gameReplayBtn');
+  const gameStage = document.getElementById('gameStage');
+  const gameGramsEl = document.getElementById('gameGrams');
+  const gameBarFill = document.getElementById('gameBarFill');
+  const gameMsgEl = document.getElementById('gameMsg');
+  const gameRoundLabel = document.getElementById('gameRoundLabel');
+  const gameScoreLabel = document.getElementById('gameScoreLabel');
+
+  const GAME_TARGET = 16;
+  const GAME_ROUNDS = 5;
+  const GAME_SPEEDS = [10, 12, 14, 16, 18];
+  const GAME_BEST_KEY = 'coffee-calc-game-best';
+
+  let gameState = 'closed';
+  let gameRound = 0;
+  let gameTotal = 0;
+  let gameGrams = 0;
+  let pourStart = 0;
+  let pourFrame = 0;
+  let gameTimer = null;
+
+  function renderGameGrams() {
+    gameGramsEl.textContent = `${gameGrams.toFixed(1)} g`;
+    gameBarFill.style.width = `${Math.min((gameGrams / 20) * 100, 100)}%`;
+  }
+
+  function gameNextRound() {
+    if (gameOverlay.hidden) return;
+    gameRound++;
+    gameGrams = 0;
+    gameState = 'ready';
+    renderGameGrams();
+    gameRoundLabel.textContent = `ตาที่ ${gameRound}/${GAME_ROUNDS}`;
+    gameScoreLabel.textContent = `คะแนนรวม ${gameTotal}`;
+    gameMsgEl.textContent = gameRound === 1
+      ? 'กดค้างเพื่อเทเมล็ด ปล่อยให้ได้ 16.0 g พอดี (คอม: กด Spacebar ค้างก็ได้)'
+      : 'ตาต่อไป — เครื่องบดเร็วขึ้นอีกนิด ☕';
+  }
+
+  function gameStart() {
+    clearTimeout(gameTimer);
+    gameRound = 0;
+    gameTotal = 0;
+    gameReplayBtn.hidden = true;
+    gameNextRound();
+  }
+
+  function gameFinish() {
+    if (gameOverlay.hidden) return;
+    gameState = 'done';
+    let rank;
+    if (gameTotal >= 460) rank = 'หัวหน้าบาริสต้า 👑';
+    else if (gameTotal >= 380) rank = 'มือทองประจำร้าน ⭐';
+    else if (gameTotal >= 280) rank = 'บาริสต้าฝึกหัด ☕';
+    else rank = 'มือใหม่หัดชง 🌱';
+
+    const best = parseInt(localStorage.getItem(GAME_BEST_KEY), 10) || 0;
+    let bestLine;
+    if (gameTotal > best) {
+      localStorage.setItem(GAME_BEST_KEY, String(gameTotal));
+      bestLine = 'สถิติใหม่! 🎉';
+      celebrate(gameGramsEl, ['☕', '✨'], 12);
+    } else {
+      bestLine = `สถิติที่ดีที่สุด ${best}`;
+    }
+    gameMsgEl.textContent = `จบเกม! ได้ ${gameTotal}/500 — ${rank} · ${bestLine}`;
+    gameReplayBtn.hidden = false;
+    gameReplayBtn.focus();
+  }
+
+  function startPour() {
+    if (gameState !== 'ready') return;
+    gameState = 'pouring';
+    gameStage.classList.add('pouring');
+    gameMsgEl.textContent = '...';
+    pourStart = performance.now();
+    pourFrame = requestAnimationFrame(pourLoop);
+  }
+
+  function pourLoop(now) {
+    gameGrams = ((now - pourStart) / 1000) * GAME_SPEEDS[gameRound - 1];
+    if (gameGrams >= 40) {
+      endPour(true);
+      return;
+    }
+    renderGameGrams();
+    pourFrame = requestAnimationFrame(pourLoop);
+  }
+
+  function endPour(overflow = false) {
+    if (gameState !== 'pouring') return;
+    cancelAnimationFrame(pourFrame);
+    gameState = 'between';
+    gameStage.classList.remove('pouring');
+    if (overflow) gameGrams = 40;
+    renderGameGrams();
+
+    const diff = gameGrams - GAME_TARGET;
+    const d = Math.abs(diff);
+    const score = overflow ? 0 : Math.max(0, Math.round(100 - d * 25));
+    gameTotal += score;
+    gameScoreLabel.textContent = `คะแนนรวม ${gameTotal}`;
+
+    let comment;
+    if (overflow) comment = 'เทจนล้นโต๊ะ! 😱';
+    else if (d <= 0.2) comment = 'เป๊ะระดับเทพ! ✨';
+    else if (d <= 0.5) comment = 'ใกล้มาก มือนิ่งใช้ได้';
+    else if (d <= 1.5) comment = 'พอไหว ซ้อมอีกนิด';
+    else if (diff > 0) comment = 'หนักไป เข้มจนช้อนตั้งได้ 😅';
+    else comment = 'เบาไป กาแฟจะจืดนะ';
+
+    if (!overflow && d <= 0.2) celebrate(gameGramsEl, ['✨', '☕'], 6);
+    gameMsgEl.textContent = `${gameGrams.toFixed(1)} g (${diff >= 0 ? '+' : ''}${diff.toFixed(1)}) — ${comment} · +${score} คะแนน`;
+
+    clearTimeout(gameTimer);
+    gameTimer = setTimeout(gameRound >= GAME_ROUNDS ? gameFinish : gameNextRound, 1400);
+  }
+
+  function openGame() {
+    gameOverlay.hidden = false;
+    gameStart();
+    gameCloseBtn.focus();
+  }
+
+  function closeGame() {
+    clearTimeout(gameTimer);
+    cancelAnimationFrame(pourFrame);
+    gameState = 'closed';
+    gameStage.classList.remove('pouring');
+    gameOverlay.hidden = true;
+    gameOpenBtn.focus();
+  }
+
+  gameOpenBtn.addEventListener('click', openGame);
+  gameCloseBtn.addEventListener('click', closeGame);
+  gameReplayBtn.addEventListener('click', gameStart);
+
+  gameStage.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    startPour();
+  });
+  window.addEventListener('pointerup', () => endPour());
+  window.addEventListener('pointercancel', () => endPour());
+
+  document.addEventListener('keydown', (e) => {
+    if (gameOverlay.hidden) return;
+    if (e.key === 'Escape') {
+      closeGame();
+    } else if (e.code === 'Space' && (gameState === 'ready' || gameState === 'pouring')) {
+      e.preventDefault();
+      if (!e.repeat) startPour();
+    }
+  });
+  document.addEventListener('keyup', (e) => {
+    if (!gameOverlay.hidden && e.code === 'Space') endPour();
+  });
+  // ---------- จบส่วนเกม ----------
 
   applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
   loadValues();
