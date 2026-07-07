@@ -110,6 +110,8 @@
   .coffee-icon {
     position: relative;
     display: inline-block;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   .steam {
@@ -163,6 +165,7 @@
   .icon-btn:focus-visible,
   .chip:focus-visible,
   .text-btn:focus-visible,
+  .equiv-btn:focus-visible,
   input:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
@@ -482,6 +485,52 @@
 
   .insight-text strong { color: var(--accent-strong); }
 
+  .equiv-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px dashed var(--input-border);
+    background: transparent;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.1s ease;
+  }
+
+  .equiv-btn:hover { border-color: var(--input-focus); }
+  .equiv-btn:active { transform: scale(0.96); }
+
+  .equiv-btn svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+  }
+
+  .equiv-btn.pop { animation: equivPop 0.25s ease-out; }
+
+  @keyframes equivPop {
+    0% { transform: scale(0.92); }
+  }
+
+  .bean-particle {
+    position: fixed;
+    top: -30px;
+    z-index: 999;
+    font-size: 16px;
+    pointer-events: none;
+    animation: beanFall var(--dur) linear var(--delay) both;
+  }
+
+  @keyframes beanFall {
+    from { transform: translateY(0) rotate(0deg); opacity: 1; }
+    to { transform: translateY(var(--fall)) rotate(var(--rot)); opacity: 0; }
+  }
+
   .insight-ref {
     display: flex;
     align-items: center;
@@ -664,6 +713,8 @@
     .result-value.pulse, .hero-value.pulse { animation: none; }
     .cup-icons .cup.pop { animation: none; }
     .usage-mood.swap { animation: none; }
+    .equiv-btn.pop { animation: none; }
+    .equiv-btn { transition: none; }
     .icon-btn, .chip, .text-btn, .icon-btn svg { transition: none; }
     .steam { animation: none; display: none; }
   }
@@ -764,6 +815,10 @@
 
       <div class="insight">
         <p class="insight-text" id="insightText">-</p>
+        <button type="button" class="equiv-btn" id="equivBtn" hidden>
+          <span id="equivText">-</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+        </button>
         <div class="insight-ref">
           <label for="cafePrice">ราคากาแฟร้านที่ใช้เทียบ (บาท/แก้ว)</label>
           <input type="number" id="cafePrice" value="60" min="0" step="any" inputmode="decimal">
@@ -819,6 +874,9 @@
   const statusMsg = document.getElementById('statusMsg');
   const mobileBar = document.getElementById('mobileBar');
   const mobileBarValueEl = document.getElementById('mobileBarValue');
+  const equivBtn = document.getElementById('equivBtn');
+  const equivTextEl = document.getElementById('equivText');
+  const coffeeIcon = document.querySelector('.coffee-icon');
 
   const STORAGE_KEY = 'coffee-calc-values';
   const THEME_KEY = 'coffee-calc-theme';
@@ -831,9 +889,20 @@
     [27.5, 'เข้มจัดจ้าน 🔥'],
     [Infinity, 'ตาสว่างยันเช้า ⚡']
   ];
+  const EQUIVALENTS = [
+    { label: 'ตั๋วหนัง', unit: 'ใบ', price: 200, emoji: '🎬' },
+    { label: 'ชาบูหม้อใหญ่', unit: 'มื้อ', price: 450, emoji: '🍲' },
+    { label: 'ข้าวมันไก่', unit: 'จาน', price: 50, emoji: '🍗' },
+    { label: 'ชานมไข่มุก', unit: 'แก้ว', price: 65, emoji: '🧋' },
+    { label: 'Netflix', unit: 'เดือน', price: 379, emoji: '📺' }
+  ];
   let statusTimer = null;
   let insightCopyText = '';
   let prevCupCount = -1;
+  let equivIndex = 0;
+  let lastMonthlySaving = null;
+  let cupClicks = 0;
+  let lastCupClick = 0;
 
   function saveValues() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -1003,11 +1072,29 @@
     prevCupCount = shown;
   }
 
+  function renderEquiv() {
+    if (lastMonthlySaving === null) {
+      equivBtn.hidden = true;
+      return;
+    }
+    const affordable = EQUIVALENTS.filter(e => lastMonthlySaving >= e.price);
+    if (!affordable.length) {
+      equivBtn.hidden = true;
+      return;
+    }
+    const item = affordable[equivIndex % affordable.length];
+    const count = Math.floor(lastMonthlySaving / item.price);
+    equivTextEl.textContent = `≈ ${item.label} ${formatNumber(count, 0)} ${item.unit} ${item.emoji}`;
+    equivBtn.hidden = false;
+  }
+
   function updateInsight(pricePerCup, cupsPerDay) {
     const cafePrice = parseFloat(cafePriceInput.value);
     if (pricePerCup === null || !isFinite(cafePrice) || cafePrice <= 0) {
       insightTextEl.textContent = 'กรอกข้อมูลให้ครบเพื่อดูว่าชงเองประหยัดกว่าซื้อร้านแค่ไหน';
       insightCopyText = '';
+      lastMonthlySaving = null;
+      renderEquiv();
       return;
     }
     const saving = cafePrice - pricePerCup;
@@ -1017,21 +1104,30 @@
       const monthly = saving * cups * 30;
       insightTextEl.innerHTML = `ชงเองถูกกว่ากาแฟร้านถึง <strong>${formatNumber(times, 1)} เท่า</strong> — ประหยัดราว <strong>${formatNumber(monthly, 0)} บาท/เดือน</strong> (${formatNumber(cups, 0)} แก้ว/วัน) ✨`;
       insightCopyText = `ชงเองถูกกว่ากาแฟร้าน (${formatNumber(cafePrice, 0)} บาท/แก้ว) ${formatNumber(times, 1)} เท่า · ประหยัดราว ${formatNumber(monthly, 0)} บาท/เดือน`;
+      lastMonthlySaving = monthly;
+      renderEquiv();
+      if (!equivBtn.hidden) {
+        insightCopyText += `\n${equivTextEl.textContent}`;
+      }
     } else if (saving < -0.005) {
       insightTextEl.innerHTML = `แก้วนี้แพงกว่ากาแฟร้าน <strong>${formatNumber(-saving, 2)} บาท/แก้ว</strong> — สายพรีเมียมตัวจริง 😎`;
       insightCopyText = '';
+      lastMonthlySaving = null;
+      renderEquiv();
     } else {
       insightTextEl.textContent = 'ราคาพอ ๆ กับกาแฟร้านเลย ☕';
       insightCopyText = '';
+      lastMonthlySaving = null;
+      renderEquiv();
     }
   }
 
-  function celebrate(originEl, emojis) {
+  function celebrate(originEl, emojis, count = 10) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const rect = originEl.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < count; i++) {
       const p = document.createElement('span');
       p.className = 'burst-particle';
       p.textContent = emojis[i % emojis.length];
@@ -1041,6 +1137,24 @@
       p.style.setProperty('--dy', `${-(40 + Math.random() * 70)}px`);
       p.style.setProperty('--rot', `${(Math.random() * 2 - 1) * 200}deg`);
       p.style.animationDelay = `${i * 15}ms`;
+      document.body.appendChild(p);
+      p.addEventListener('animationend', () => p.remove());
+    }
+  }
+
+  function rainBeans() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rect = document.querySelector('.card').getBoundingClientRect();
+    const emojis = ['🫘', '☕', '🤎'];
+    for (let i = 0; i < 24; i++) {
+      const p = document.createElement('span');
+      p.className = 'bean-particle';
+      p.textContent = emojis[i % emojis.length];
+      p.style.left = `${rect.left + Math.random() * rect.width}px`;
+      p.style.setProperty('--fall', `${window.innerHeight + 80}px`);
+      p.style.setProperty('--rot', `${(Math.random() * 2 - 1) * 360}deg`);
+      p.style.setProperty('--dur', `${1.2 + Math.random() * 0.9}s`);
+      p.style.setProperty('--delay', `${Math.random() * 0.4}s`);
       document.body.appendChild(p);
       p.addEventListener('animationend', () => p.remove());
     }
@@ -1113,6 +1227,27 @@
     themeToggle.setAttribute('aria-label', theme === 'light' ? 'สลับเป็นธีมมืด' : 'สลับเป็นธีมสว่าง');
     themeColorMeta.setAttribute('content', theme === 'light' ? '#f6f3ee' : '#0d0d0d');
   }
+
+  equivBtn.addEventListener('click', () => {
+    equivIndex++;
+    renderEquiv();
+    equivBtn.classList.remove('pop');
+    void equivBtn.offsetWidth;
+    equivBtn.classList.add('pop');
+  });
+
+  coffeeIcon.addEventListener('click', () => {
+    const now = Date.now();
+    cupClicks = (now - lastCupClick < 1200) ? cupClicks + 1 : 1;
+    lastCupClick = now;
+    if (cupClicks >= 5) {
+      cupClicks = 0;
+      rainBeans();
+      showStatus('คอกาแฟตัวจริง! ☕🔥');
+    } else {
+      celebrate(coffeeIcon, ['💨'], 3);
+    }
+  });
 
   mobileBar.addEventListener('click', () => {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
