@@ -474,6 +474,10 @@
       position: sticky;
       top: 24px;
     }
+
+    .actions {
+      justify-content: flex-end;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -505,7 +509,8 @@
         <div class="grid-2">
           <div>
             <label for="price">ราคา (บาท)</label>
-            <input type="number" id="price" value="180" min="0" step="any" inputmode="decimal">
+            <input type="number" id="price" value="180" min="0" step="any" inputmode="decimal" aria-describedby="priceError">
+            <p class="field-error" id="priceError" role="alert">ราคาต้องไม่ติดลบ</p>
           </div>
           <div>
             <label for="weight">น้ำหนัก (กรัม)</label>
@@ -513,10 +518,10 @@
           </div>
         </div>
         <div class="chip-group" id="weightChips">
-          <button type="button" class="chip" data-value="100">100 ก.</button>
-          <button type="button" class="chip" data-value="200">200 ก.</button>
-          <button type="button" class="chip" data-value="250">250 ก.</button>
-          <button type="button" class="chip" data-value="500">500 ก.</button>
+          <button type="button" class="chip" data-value="100" aria-pressed="false">100 ก.</button>
+          <button type="button" class="chip" data-value="200" aria-pressed="false">200 ก.</button>
+          <button type="button" class="chip" data-value="250" aria-pressed="true">250 ก.</button>
+          <button type="button" class="chip" data-value="500" aria-pressed="false">500 ก.</button>
         </div>
         <p class="field-error" id="weightError" role="alert">กรุณากรอกน้ำหนักมากกว่า 0 กรัม</p>
       </div>
@@ -559,10 +564,10 @@
       <label for="cupsPerDay">ดื่มกี่แก้วต่อวัน</label>
       <input type="number" id="cupsPerDay" value="1" min="0" step="1" inputmode="numeric">
       <div class="chip-group" id="cupsPerDayChips">
-        <button type="button" class="chip" data-value="1">1 แก้ว</button>
-        <button type="button" class="chip" data-value="2">2 แก้ว</button>
-        <button type="button" class="chip" data-value="3">3 แก้ว</button>
-        <button type="button" class="chip" data-value="4">4 แก้ว</button>
+        <button type="button" class="chip" data-value="1" aria-pressed="true">1 แก้ว</button>
+        <button type="button" class="chip" data-value="2" aria-pressed="false">2 แก้ว</button>
+        <button type="button" class="chip" data-value="3" aria-pressed="false">3 แก้ว</button>
+        <button type="button" class="chip" data-value="4" aria-pressed="false">4 แก้ว</button>
       </div>
     </div>
     <div class="result-row">
@@ -592,6 +597,7 @@
   const usageValueEl = document.getElementById('usageValue');
   const weightChips = document.querySelectorAll('#weightChips .chip');
   const weightErrorEl = document.getElementById('weightError');
+  const priceErrorEl = document.getElementById('priceError');
   const cupsPerDayInput = document.getElementById('cupsPerDay');
   const cupsPerDayChips = document.querySelectorAll('#cupsPerDayChips .chip');
 
@@ -612,6 +618,7 @@
   const THEME_KEY = 'coffee-calc-theme';
   const DEFAULTS = { price: '180', weight: '250', usage: '16', cupsPerDay: '1' };
   let statusTimer = null;
+  let monthlyPanelOpened = false;
 
   function saveValues() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -638,14 +645,18 @@
   function updateWeightChips() {
     const val = parseFloat(weightInput.value);
     weightChips.forEach(chip => {
-      chip.classList.toggle('active', parseFloat(chip.dataset.value) === val);
+      const isActive = parseFloat(chip.dataset.value) === val;
+      chip.classList.toggle('active', isActive);
+      chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
   }
 
   function updateCupsPerDayChips() {
     const val = parseFloat(cupsPerDayInput.value);
     cupsPerDayChips.forEach(chip => {
-      chip.classList.toggle('active', parseFloat(chip.dataset.value) === val);
+      const isActive = parseFloat(chip.dataset.value) === val;
+      chip.classList.toggle('active', isActive);
+      chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
   }
 
@@ -702,7 +713,12 @@
     weightErrorEl.classList.toggle('visible', weightInvalid);
     weightInput.setAttribute('aria-invalid', weightInvalid ? 'true' : 'false');
 
-    if (!isFinite(price) || weightInvalid) {
+    const priceInvalid = !isFinite(price) || price < 0;
+    priceInput.classList.toggle('invalid', priceInvalid);
+    priceErrorEl.classList.toggle('visible', priceInvalid);
+    priceInput.setAttribute('aria-invalid', priceInvalid ? 'true' : 'false');
+
+    if (priceInvalid || weightInvalid) {
       setText(pricePerGramEl, '-');
       setText(pricePerCupEl, '-');
       setText(cupsEstimateEl, '-');
@@ -748,6 +764,7 @@
     const isOpen = monthlyToggle.getAttribute('aria-expanded') === 'true';
     monthlyToggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
     monthlyPanel.hidden = isOpen;
+    if (!isOpen) monthlyPanelOpened = true;
   });
 
   themeToggle.addEventListener('click', () => {
@@ -758,12 +775,15 @@
   });
 
   copyBtn.addEventListener('click', async () => {
-    const summary = [
+    const lines = [
       `ราคาต่อกรัม: ${pricePerGramEl.textContent}`,
       `ราคาต่อแก้ว: ${pricePerCupEl.textContent}`,
-      `ชงได้ประมาณ: ${cupsEstimateEl.textContent}`,
-      `ค่าใช้จ่ายต่อเดือน (30 วัน): ${monthlyCostEl.textContent}`
-    ].join('\n');
+      `ชงได้ประมาณ: ${cupsEstimateEl.textContent}`
+    ];
+    if (monthlyPanelOpened) {
+      lines.push(`ค่าใช้จ่ายต่อเดือน (30 วัน): ${monthlyCostEl.textContent}`);
+    }
+    const summary = lines.join('\n');
 
     try {
       await navigator.clipboard.writeText(summary);
@@ -778,6 +798,9 @@
     weightInput.value = DEFAULTS.weight;
     usageInput.value = DEFAULTS.usage;
     cupsPerDayInput.value = DEFAULTS.cupsPerDay;
+    monthlyPanel.hidden = true;
+    monthlyToggle.setAttribute('aria-expanded', 'false');
+    monthlyPanelOpened = false;
     updateWeightChips();
     updateCupsPerDayChips();
     updateUsageSlider();
