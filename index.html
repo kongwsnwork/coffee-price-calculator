@@ -81,6 +81,13 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.6), 0 8px 30px rgba(255,138,0,0.08);
     padding: 28px 28px 24px;
     transition: background-color 0.2s ease, border-color 0.2s ease;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: cardEnter 0.45s ease-out forwards;
+  }
+
+  @keyframes cardEnter {
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .header {
@@ -98,6 +105,34 @@
     line-height: 1.3;
   }
 
+  .coffee-icon {
+    position: relative;
+    display: inline-block;
+  }
+
+  .steam {
+    position: absolute;
+    top: -1px;
+    left: 9px;
+    width: 3px;
+    height: 9px;
+    background: linear-gradient(to top, transparent, var(--text-faint));
+    border-radius: 3px;
+    opacity: 0;
+    animation: steamRise 2.6s ease-in-out infinite;
+  }
+
+  .steam-2 {
+    left: 15px;
+    animation-delay: 0.9s;
+  }
+
+  @keyframes steamRise {
+    0% { transform: translateY(2px) scaleY(0.5); opacity: 0; }
+    35% { opacity: 0.55; }
+    100% { transform: translateY(-13px) scaleY(1.15); opacity: 0; }
+  }
+
   .subtitle {
     margin: 6px 0 0;
     font-size: 13.5px;
@@ -105,6 +140,7 @@
   }
 
   .icon-btn {
+    position: relative;
     flex-shrink: 0;
     width: 40px;
     height: 40px;
@@ -130,10 +166,31 @@
     outline-offset: 2px;
   }
 
-  .icon-btn svg { width: 18px; height: 18px; }
-  .icon-moon { display: none; }
-  :root[data-theme="light"] .icon-sun { display: none; }
-  :root[data-theme="light"] .icon-moon { display: block; }
+  .icon-btn svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 18px;
+    height: 18px;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    opacity: 1;
+    transition: transform 0.35s ease, opacity 0.35s ease;
+  }
+
+  .icon-moon {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-90deg) scale(0.4);
+  }
+
+  :root[data-theme="light"] .icon-sun {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(90deg) scale(0.4);
+  }
+
+  :root[data-theme="light"] .icon-moon {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
 
   hr {
     border: none;
@@ -356,6 +413,88 @@
     100% { transform: scale(1); }
   }
 
+  .mini-chart {
+    margin-top: 20px;
+  }
+
+  .mini-chart-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bar-label {
+    flex: 0 0 auto;
+    width: 64px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .current-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 5px;
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  .bar-row.current .bar-label {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .bar-row.current .current-dot {
+    background: var(--accent);
+  }
+
+  .bar-track {
+    position: relative;
+    flex: 1 1 auto;
+    height: 10px;
+    border-radius: 4px;
+    background: var(--input-bg);
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    border-radius: 0 4px 4px 0;
+    background: var(--text-faint);
+    transition: width 0.3s ease;
+  }
+
+  .bar-row.current .bar-fill {
+    background: var(--accent);
+  }
+
+  .bar-value {
+    flex: 0 0 auto;
+    min-width: 64px;
+    text-align: right;
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-main);
+    font-weight: 600;
+  }
+
+  .bar-row.current .bar-value {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
   .disclosure-btn {
     width: 100%;
     display: flex;
@@ -481,8 +620,10 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .card { animation: none; opacity: 1; transform: none; }
     .result-value.pulse { animation: none; }
-    .icon-btn, .chip, .text-btn, .disclosure-btn, .disclosure-btn svg { transition: none; }
+    .icon-btn, .chip, .text-btn, .disclosure-btn, .disclosure-btn svg, .icon-btn svg, .bar-fill { transition: none; }
+    .steam { animation: none; display: none; }
   }
 </style>
 </head>
@@ -491,7 +632,7 @@
 <div class="card">
   <div class="header">
     <div>
-      <h1 class="title">☕ Coffee Price Calculator</h1>
+      <h1 class="title"><span class="coffee-icon">☕<span class="steam" aria-hidden="true"></span><span class="steam steam-2" aria-hidden="true"></span></span> Coffee Price Calculator</h1>
       <p class="subtitle">คำนวณต้นทุนกาแฟต่อกรัม ต่อแก้ว และต่อเดือน</p>
     </div>
     <button type="button" id="themeToggle" class="icon-btn" aria-label="สลับธีม">
@@ -550,6 +691,32 @@
         <div class="result-row">
           <span class="result-label">ชงได้ประมาณ</span>
           <span class="result-value accent" id="cupsEstimate">-</span>
+        </div>
+      </div>
+
+      <div class="mini-chart">
+        <div class="section-label">เทียบราคาต่อแก้วตามขนาดถุง</div>
+        <div class="mini-chart-rows">
+          <div class="bar-row" data-weight="100">
+            <span class="bar-label"><span class="current-dot" aria-hidden="true"></span>100 ก.</span>
+            <span class="bar-track"><span class="bar-fill" id="bar-100"></span></span>
+            <span class="bar-value" id="barValue-100">-</span>
+          </div>
+          <div class="bar-row" data-weight="200">
+            <span class="bar-label"><span class="current-dot" aria-hidden="true"></span>200 ก.</span>
+            <span class="bar-track"><span class="bar-fill" id="bar-200"></span></span>
+            <span class="bar-value" id="barValue-200">-</span>
+          </div>
+          <div class="bar-row" data-weight="250">
+            <span class="bar-label"><span class="current-dot" aria-hidden="true"></span>250 ก.</span>
+            <span class="bar-track"><span class="bar-fill" id="bar-250"></span></span>
+            <span class="bar-value" id="barValue-250">-</span>
+          </div>
+          <div class="bar-row" data-weight="500">
+            <span class="bar-label"><span class="current-dot" aria-hidden="true"></span>500 ก.</span>
+            <span class="bar-track"><span class="bar-fill" id="bar-500"></span></span>
+            <span class="bar-value" id="barValue-500">-</span>
+          </div>
         </div>
       </div>
     </div>
@@ -613,6 +780,11 @@
   const copyBtn = document.getElementById('copyBtn');
   const resetBtn = document.getElementById('resetBtn');
   const statusMsg = document.getElementById('statusMsg');
+
+  const barWeights = [100, 200, 250, 500];
+  const barRows = Object.fromEntries(barWeights.map(w => [w, document.querySelector(`.bar-row[data-weight="${w}"]`)]));
+  const barFills = Object.fromEntries(barWeights.map(w => [w, document.getElementById(`bar-${w}`)]));
+  const barValues = Object.fromEntries(barWeights.map(w => [w, document.getElementById(`barValue-${w}`)]));
 
   const STORAGE_KEY = 'coffee-calc-values';
   const THEME_KEY = 'coffee-calc-theme';
@@ -693,9 +865,42 @@
     });
   }
 
-  function setText(el, text) {
-    if (el.textContent === text) return;
-    el.textContent = text;
+  function animateNumber(el, value, decimals, suffix) {
+    cancelAnimationFrame(el._animFrame);
+
+    if (value === null) {
+      el.textContent = '-';
+      delete el.dataset.rawValue;
+      return;
+    }
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const startValue = parseFloat(el.dataset.rawValue);
+    el.dataset.rawValue = value;
+
+    if (reduceMotion || !isFinite(startValue)) {
+      el.textContent = `${formatNumber(value, decimals)} ${suffix}`;
+      el.classList.remove('pulse');
+      void el.offsetWidth;
+      el.classList.add('pulse');
+      return;
+    }
+
+    if (startValue === value) return;
+
+    const duration = 320;
+    const start = performance.now();
+
+    function step(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = startValue + (value - startValue) * eased;
+      el.textContent = `${formatNumber(current, decimals)} ${suffix}`;
+      if (progress < 1) {
+        el._animFrame = requestAnimationFrame(step);
+      }
+    }
+    el._animFrame = requestAnimationFrame(step);
     el.classList.remove('pulse');
     void el.offsetWidth;
     el.classList.add('pulse');
@@ -718,34 +923,59 @@
     priceErrorEl.classList.toggle('visible', priceInvalid);
     priceInput.setAttribute('aria-invalid', priceInvalid ? 'true' : 'false');
 
+    updateBarChart(price, usage, weight);
+
     if (priceInvalid || weightInvalid) {
-      setText(pricePerGramEl, '-');
-      setText(pricePerCupEl, '-');
-      setText(cupsEstimateEl, '-');
-      setText(monthlyCostEl, '-');
+      animateNumber(pricePerGramEl, null);
+      animateNumber(pricePerCupEl, null);
+      animateNumber(cupsEstimateEl, null);
+      animateNumber(monthlyCostEl, null);
       return;
     }
 
     const pricePerGram = price / weight;
-    setText(pricePerGramEl, `${formatNumber(pricePerGram, 2)} บาท/กรัม`);
+    animateNumber(pricePerGramEl, pricePerGram, 2, 'บาท/กรัม');
 
     if (isFinite(usage) && usage > 0) {
       const pricePerCup = pricePerGram * usage;
       const cupsEstimate = weight / usage;
-      setText(pricePerCupEl, `${formatNumber(pricePerCup, 2)} บาท`);
-      setText(cupsEstimateEl, `${formatNumber(cupsEstimate, 1)} แก้ว`);
+      animateNumber(pricePerCupEl, pricePerCup, 2, 'บาท');
+      animateNumber(cupsEstimateEl, cupsEstimate, 1, 'แก้ว');
 
       if (isFinite(cupsPerDay) && cupsPerDay >= 0) {
         const monthlyCost = pricePerCup * cupsPerDay * 30;
-        setText(monthlyCostEl, `${formatNumber(monthlyCost, 2)} บาท`);
+        animateNumber(monthlyCostEl, monthlyCost, 2, 'บาท');
       } else {
-        setText(monthlyCostEl, '-');
+        animateNumber(monthlyCostEl, null);
       }
     } else {
-      setText(pricePerCupEl, '-');
-      setText(cupsEstimateEl, '-');
-      setText(monthlyCostEl, '-');
+      animateNumber(pricePerCupEl, null);
+      animateNumber(cupsEstimateEl, null);
+      animateNumber(monthlyCostEl, null);
     }
+  }
+
+  function updateBarChart(price, usage, currentWeight) {
+    const priceOk = isFinite(price) && price >= 0;
+    const usageOk = isFinite(usage) && usage > 0;
+
+    const values = barWeights.map(w => (priceOk && usageOk) ? (price / w) * usage : null);
+    const maxValue = Math.max(...values.filter(v => v !== null), 0);
+
+    barWeights.forEach((w, i) => {
+      const value = values[i];
+      const isCurrent = isFinite(currentWeight) && currentWeight === w;
+      barRows[w].classList.toggle('current', isCurrent);
+      barRows[w].setAttribute('aria-current', isCurrent ? 'true' : 'false');
+      if (value === null) {
+        barFills[w].style.width = '0%';
+        barValues[w].textContent = '-';
+      } else {
+        const pct = maxValue > 0 ? (value / maxValue) * 100 : 0;
+        barFills[w].style.width = `${pct}%`;
+        barValues[w].textContent = `${formatNumber(value, 2)} บาท`;
+      }
+    });
   }
 
   function showStatus(message) {
