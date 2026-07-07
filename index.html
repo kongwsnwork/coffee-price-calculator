@@ -701,6 +701,8 @@
 
   .game-open-btn:active { transform: scale(0.96); }
 
+  .game-open-btn[hidden] { display: none; }
+
   .game-open-btn .play-icon {
     width: 15px;
     height: 15px;
@@ -740,12 +742,25 @@
   .game-card {
     width: 100%;
     max-width: 400px;
-    background: var(--card-bg);
+    background: linear-gradient(180deg, var(--card-bg) 0%, var(--bg) 130%);
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
     -webkit-user-select: none;
     user-select: none;
+  }
+
+  .game-card.shake {
+    animation: cardShake 0.35s ease;
+  }
+
+  @keyframes cardShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
   }
 
   .game-top {
@@ -753,9 +768,13 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    font-size: 13px;
-    color: var(--text-muted);
     margin-bottom: 10px;
+  }
+
+  .game-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
   }
 
   .game-top .icon-btn {
@@ -763,10 +782,63 @@
     height: 34px;
   }
 
+  .game-hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .game-pips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .game-pips .pip {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--input-border);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+  }
+
+  .game-pips .pip.done {
+    background: var(--accent-strong);
+    opacity: 0.45;
+  }
+
+  .game-pips .pip.current {
+    background: var(--accent-strong);
+    transform: scale(1.4);
+    box-shadow: 0 0 6px rgba(255, 138, 0, 0.55);
+  }
+
+  .game-hud-chip {
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--chip-bg);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .game-hud-chip.score {
+    background: var(--badge-bg);
+    border-color: transparent;
+    color: var(--accent-strong);
+  }
+
   .game-stage {
     text-align: center;
-    padding: 8px 0 4px;
-    border-radius: 12px;
+    padding: 12px 12px 12px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--input-bg);
     touch-action: none;
     cursor: pointer;
   }
@@ -788,19 +860,24 @@
   }
 
   .game-grams {
-    font-size: 52px;
+    font-size: 56px;
     font-weight: 700;
     line-height: 1.1;
     color: var(--text-main);
     font-variant-numeric: tabular-nums;
+    transition: color 0.1s linear;
   }
+
+  .game-grams.in-zone { color: var(--accent-strong); }
+  .game-grams.over { color: var(--error); }
 
   .game-bar {
     position: relative;
-    height: 10px;
-    margin: 16px 8px 4px;
+    height: 16px;
+    margin: 14px 6px 4px;
     border-radius: 999px;
-    background: var(--input-bg);
+    background: var(--chip-bg);
+    border: 1px solid var(--border);
   }
 
   .game-bar-fill {
@@ -810,22 +887,47 @@
     background: var(--accent-strong);
   }
 
+  .game-bar-fill.over { background: var(--error); }
+
+  .game-bar-zone {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 77.5%;
+    width: 5%;
+    background: rgba(255, 138, 0, 0.3);
+  }
+
   .game-bar-target {
     position: absolute;
-    top: -4px;
-    bottom: -4px;
+    top: -5px;
+    bottom: -5px;
     left: 80%;
     width: 2px;
     border-radius: 2px;
     background: var(--text-main);
-    opacity: 0.55;
+    opacity: 0.6;
   }
 
   .game-msg {
-    min-height: 44px;
+    min-height: 64px;
     margin: 12px 0 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--chip-bg);
     font-size: 14px;
     line-height: 1.5;
+    color: var(--text-main);
+  }
+
+  .game-msg .game-rank {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+
+  .game-msg small {
+    font-size: 12px;
     color: var(--text-muted);
   }
 
@@ -886,6 +988,8 @@
     .game-stage.pouring .game-pour { animation: none; }
     .game-open-btn { transition: none; }
     .game-open-btn::after { animation: none; display: none; }
+    .game-card.shake { animation: none; }
+    .game-pips .pip { transition: none; }
     .icon-btn, .chip, .text-btn, .icon-btn svg { transition: none; }
     .steam { animation: none; display: none; }
   }
@@ -1026,25 +1130,35 @@
 </button>
 
 <div class="game-overlay" id="gameOverlay" hidden>
-  <div class="game-card" role="dialog" aria-modal="true" aria-label="เกมมือบาริสต้า กะให้ได้ 16 กรัม">
+  <div class="game-card" id="gameCard" role="dialog" aria-modal="true" aria-label="เกมมือบาริสต้า กะให้ได้ 16 กรัม">
     <div class="game-top">
-      <span id="gameRoundLabel">ตาที่ 1/5</span>
-      <span id="gameScoreLabel">คะแนนรวม 0</span>
+      <span class="game-title">☕ มือบาริสต้า</span>
       <button type="button" id="gameCloseBtn" class="icon-btn" aria-label="ปิดเกม">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"></path></svg>
       </button>
+    </div>
+    <div class="game-hud">
+      <div class="game-pips" id="gamePips" aria-hidden="true">
+        <span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span>
+      </div>
+      <span class="game-hud-chip" id="gameSpeedLabel">⚙️ x1.0</span>
+      <span class="game-hud-chip score" id="gameScoreLabel">⭐ 0</span>
     </div>
     <div class="game-stage" id="gameStage">
       <div class="game-pour" aria-hidden="true">🫘</div>
       <div class="game-grams" id="gameGrams" aria-hidden="true">0.0 g</div>
       <div class="game-bar" aria-hidden="true">
         <div class="game-bar-fill" id="gameBarFill"></div>
+        <div class="game-bar-zone"></div>
         <div class="game-bar-target"></div>
       </div>
       <p class="game-msg" id="gameMsg" role="status">กดค้างเพื่อเทเมล็ด ปล่อยให้ได้ 16.0 g พอดี</p>
     </div>
     <div class="game-actions">
-      <button type="button" id="gameReplayBtn" class="text-btn" hidden>เล่นอีกครั้ง</button>
+      <button type="button" id="gameReplayBtn" class="game-open-btn" hidden>
+        <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+        เล่นอีกครั้ง
+      </button>
     </div>
   </div>
 </div>
@@ -1532,6 +1646,7 @@
 
   // ---------- เกมมือบาริสต้า ----------
   const gameOverlay = document.getElementById('gameOverlay');
+  const gameCard = document.getElementById('gameCard');
   const gameOpenBtn = document.getElementById('gameOpenBtn');
   const gameCloseBtn = document.getElementById('gameCloseBtn');
   const gameReplayBtn = document.getElementById('gameReplayBtn');
@@ -1539,7 +1654,8 @@
   const gameGramsEl = document.getElementById('gameGrams');
   const gameBarFill = document.getElementById('gameBarFill');
   const gameMsgEl = document.getElementById('gameMsg');
-  const gameRoundLabel = document.getElementById('gameRoundLabel');
+  const gamePips = document.querySelectorAll('#gamePips .pip');
+  const gameSpeedLabel = document.getElementById('gameSpeedLabel');
   const gameScoreLabel = document.getElementById('gameScoreLabel');
 
   const GAME_TARGET = 16;
@@ -1558,6 +1674,11 @@
   function renderGameGrams() {
     gameGramsEl.textContent = `${gameGrams.toFixed(1)} g`;
     gameBarFill.style.width = `${Math.min((gameGrams / 20) * 100, 100)}%`;
+    const inZone = Math.abs(gameGrams - GAME_TARGET) <= 0.5;
+    const over = gameGrams > GAME_TARGET + 0.5;
+    gameGramsEl.classList.toggle('in-zone', inZone);
+    gameGramsEl.classList.toggle('over', over);
+    gameBarFill.classList.toggle('over', over);
   }
 
   function gameNextRound() {
@@ -1566,11 +1687,15 @@
     gameGrams = 0;
     gameState = 'ready';
     renderGameGrams();
-    gameRoundLabel.textContent = `ตาที่ ${gameRound}/${GAME_ROUNDS}`;
-    gameScoreLabel.textContent = `คะแนนรวม ${gameTotal}`;
+    gamePips.forEach((pip, i) => {
+      pip.classList.toggle('done', i < gameRound - 1);
+      pip.classList.toggle('current', i === gameRound - 1);
+    });
+    gameSpeedLabel.textContent = `⚙️ x${(GAME_SPEEDS[gameRound - 1] / GAME_SPEEDS[0]).toFixed(1)}`;
+    gameScoreLabel.textContent = `⭐ ${gameTotal}`;
     gameMsgEl.textContent = gameRound === 1
       ? 'กดค้างเพื่อเทเมล็ด ปล่อยให้ได้ 16.0 g พอดี (คอม: กด Spacebar ค้างก็ได้)'
-      : 'ตาต่อไป — เครื่องบดเร็วขึ้นอีกนิด ☕';
+      : `ตาที่ ${gameRound}/${GAME_ROUNDS} — เครื่องบดเร็วขึ้นอีกนิด ⚙️`;
   }
 
   function gameStart() {
@@ -1599,7 +1724,7 @@
     } else {
       bestLine = `สถิติที่ดีที่สุด ${best}`;
     }
-    gameMsgEl.textContent = `จบเกม! ได้ ${gameTotal}/500 — ${rank} · ${bestLine}`;
+    gameMsgEl.innerHTML = `จบเกม! ได้ <strong>${gameTotal}/500</strong> คะแนน<br><span class="game-rank">${rank}</span><br><small>${bestLine}</small>`;
     gameReplayBtn.hidden = false;
     gameReplayBtn.focus();
   }
@@ -1635,7 +1760,12 @@
     const d = Math.abs(diff);
     const score = overflow ? 0 : Math.max(0, Math.round(100 - d * 25));
     gameTotal += score;
-    gameScoreLabel.textContent = `คะแนนรวม ${gameTotal}`;
+    gameScoreLabel.textContent = `⭐ ${gameTotal}`;
+    if (overflow) {
+      gameCard.classList.remove('shake');
+      void gameCard.offsetWidth;
+      gameCard.classList.add('shake');
+    }
 
     let comment;
     if (overflow) comment = 'เทจนล้นโต๊ะ! 😱';
