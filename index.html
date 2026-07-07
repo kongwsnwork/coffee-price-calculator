@@ -380,6 +380,29 @@
     gap: 12px;
   }
 
+  .hero {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-label {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .hero-value {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
   .result-row {
     display: flex;
     align-items: baseline;
@@ -400,11 +423,8 @@
     display: inline-block;
   }
 
-  .result-value.accent {
-    color: var(--accent);
-  }
-
-  .result-value.pulse {
+  .result-value.pulse,
+  .hero-value.pulse {
     animation: valuePulse 220ms ease-out;
   }
 
@@ -413,122 +433,103 @@
     100% { transform: scale(1); }
   }
 
-  .mini-chart {
-    margin-top: 20px;
-  }
-
-  .mini-chart-rows {
+  .cup-icons {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 4px;
-  }
-
-  .bar-row {
-    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: 3px;
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 1;
   }
 
-  .bar-label {
-    flex: 0 0 auto;
-    width: 64px;
-    font-size: 12.5px;
-    color: var(--text-muted);
-    white-space: nowrap;
+  .cup-icons[hidden] { display: none; }
+
+  .cup-icons .cup { display: inline-block; }
+
+  .cup-icons .cup.pop {
+    animation: cupPop 0.25s ease-out both;
   }
 
-  .current-dot {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    margin-right: 5px;
-    border-radius: 50%;
-    background: transparent;
+  @keyframes cupPop {
+    from { transform: scale(0); opacity: 0; }
   }
 
-  .bar-row.current .bar-label {
-    color: var(--accent);
-    font-weight: 700;
-  }
+  .cup-icons .cup.faded { opacity: 0.35; }
 
-  .bar-row.current .current-dot {
-    background: var(--accent);
-  }
-
-  .bar-track {
-    position: relative;
-    flex: 1 1 auto;
-    height: 10px;
-    border-radius: 4px;
-    background: var(--input-bg);
-    overflow: hidden;
-  }
-
-  .bar-fill {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 0%;
-    border-radius: 0 4px 4px 0;
-    background: var(--text-faint);
-    transition: width 0.3s ease;
-  }
-
-  .bar-row.current .bar-fill {
-    background: var(--accent);
-  }
-
-  .bar-value {
-    flex: 0 0 auto;
-    min-width: 64px;
-    text-align: right;
-    font-size: 12.5px;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-main);
+  .cup-more {
+    margin-left: 3px;
+    font-size: 12px;
     font-weight: 600;
+    color: var(--text-muted);
   }
 
-  .bar-row.current .bar-value {
-    color: var(--accent);
-    font-weight: 700;
+  .insight {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--badge-bg);
   }
 
-  .disclosure-btn {
-    width: 100%;
+  .insight-text {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--text-main);
+  }
+
+  .insight-text strong { color: var(--accent); }
+
+  .insight-ref {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 18px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    border: 1px dashed var(--input-border);
-    background: transparent;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .insight-ref label {
+    margin-bottom: 0;
+    font-size: 12.5px;
     color: var(--text-muted);
-    font-family: inherit;
-    font-size: 13.5px;
-    cursor: pointer;
-    transition: border-color 0.15s ease, color 0.15s ease;
   }
 
-  .disclosure-btn:hover {
-    border-color: var(--input-focus);
-    color: var(--text-main);
+  .insight-ref input[type="number"] {
+    width: 84px;
+    flex-shrink: 0;
+    padding: 6px 10px;
+    font-size: 14px;
+    text-align: right;
   }
 
-  .disclosure-btn svg {
-    width: 16px;
-    height: 16px;
-    transition: transform 0.2s ease;
+  .usage-mood {
+    margin: 8px 0 0;
+    min-height: 1.2em;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--text-muted);
   }
 
-  .disclosure-btn[aria-expanded="true"] svg {
-    transform: rotate(180deg);
+  .usage-mood.swap { animation: moodSwap 0.25s ease-out; }
+
+  @keyframes moodSwap {
+    from { opacity: 0; transform: translateY(4px); }
   }
 
-  .disclosure-panel {
-    margin-top: 16px;
+  .burst-particle {
+    position: fixed;
+    z-index: 999;
+    font-size: 14px;
+    pointer-events: none;
+    animation: burstFly 0.7s ease-out both;
+  }
+
+  @keyframes burstFly {
+    from { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 1; }
+    to {
+      transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.15) rotate(var(--rot));
+      opacity: 0;
+    }
   }
 
   .actions {
@@ -621,8 +622,10 @@
 
   @media (prefers-reduced-motion: reduce) {
     .card { animation: none; opacity: 1; transform: none; }
-    .result-value.pulse { animation: none; }
-    .icon-btn, .chip, .text-btn, .disclosure-btn, .disclosure-btn svg, .icon-btn svg, .bar-fill { transition: none; }
+    .result-value.pulse, .hero-value.pulse { animation: none; }
+    .cup-icons .cup.pop { animation: none; }
+    .usage-mood.swap { animation: none; }
+    .icon-btn, .chip, .text-btn, .icon-btn svg { transition: none; }
     .steam { animation: none; display: none; }
   }
 </style>
@@ -659,10 +662,10 @@
           </div>
         </div>
         <div class="chip-group" id="weightChips">
-          <button type="button" class="chip" data-value="100" aria-pressed="false">100 ก.</button>
-          <button type="button" class="chip" data-value="200" aria-pressed="false">200 ก.</button>
-          <button type="button" class="chip" data-value="250" aria-pressed="true">250 ก.</button>
-          <button type="button" class="chip" data-value="500" aria-pressed="false">500 ก.</button>
+          <button type="button" class="chip" data-value="100" aria-pressed="false">100 g</button>
+          <button type="button" class="chip" data-value="200" aria-pressed="false">200 g</button>
+          <button type="button" class="chip" data-value="250" aria-pressed="true">250 g</button>
+          <button type="button" class="chip" data-value="500" aria-pressed="false">500 g</button>
         </div>
         <p class="field-error" id="weightError" role="alert">กรุณากรอกน้ำหนักมากกว่า 0 กรัม</p>
       </div>
@@ -671,75 +674,62 @@
         <div class="section-label">การชงต่อแก้ว</div>
         <div class="label-row">
           <label for="usage">ปริมาณที่ใช้ต่อครั้ง (กรัม)</label>
-          <span class="value-badge" id="usageValue">16 ก.</span>
+          <span class="value-badge" id="usageValue">16 g</span>
         </div>
         <input type="range" id="usage" value="16" min="5" max="40" step="0.5">
-        <div class="range-minmax"><span>5 ก.</span><span>40 ก.</span></div>
+        <div class="range-minmax"><span>5 g</span><span>40 g</span></div>
+        <p class="usage-mood" id="usageMood"></p>
+        <div class="chip-group" id="brewChips">
+          <button type="button" class="chip" data-value="16" aria-pressed="false">ดริป 16 g</button>
+          <button type="button" class="chip" data-value="18" aria-pressed="false">เอสเพรสโซ 18 g</button>
+          <button type="button" class="chip" data-value="20" aria-pressed="false">มอคค่าพอท 20 g</button>
+          <button type="button" class="chip" data-value="30" aria-pressed="false">เฟรนช์เพรส 30 g</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="section-label">ปริมาณการดื่ม</div>
+        <label for="cupsPerDay">ดื่มกี่แก้วต่อวัน</label>
+        <input type="number" id="cupsPerDay" value="1" min="0" step="1" inputmode="numeric">
+        <div class="chip-group" id="cupsPerDayChips">
+          <button type="button" class="chip" data-value="1" aria-pressed="true">1 แก้ว</button>
+          <button type="button" class="chip" data-value="2" aria-pressed="false">2 แก้ว</button>
+          <button type="button" class="chip" data-value="3" aria-pressed="false">3 แก้ว</button>
+          <button type="button" class="chip" data-value="4" aria-pressed="false">4 แก้ว</button>
+        </div>
       </div>
     </div>
 
     <div class="output-col">
       <div class="results" aria-live="polite">
+        <div class="hero">
+          <p class="hero-label">ราคาต่อแก้ว</p>
+          <p class="hero-value" id="pricePerCup">-</p>
+        </div>
         <div class="result-row">
           <span class="result-label">ราคาต่อกรัม</span>
           <span class="result-value" id="pricePerGram">-</span>
         </div>
-        <div class="result-row">
-          <span class="result-label">ราคาต่อแก้ว</span>
-          <span class="result-value" id="pricePerCup">-</span>
+        <div>
+          <div class="result-row">
+            <span class="result-label">ชงได้ประมาณ</span>
+            <span class="result-value" id="cupsEstimate">-</span>
+          </div>
+          <div class="cup-icons" id="cupRow" aria-hidden="true" hidden></div>
         </div>
         <div class="result-row">
-          <span class="result-label">ชงได้ประมาณ</span>
-          <span class="result-value accent" id="cupsEstimate">-</span>
+          <span class="result-label">ค่าใช้จ่ายต่อเดือน (30 วัน)</span>
+          <span class="result-value" id="monthlyCost">-</span>
         </div>
       </div>
 
-      <div class="mini-chart">
-        <div class="section-label">เทียบราคาต่อแก้วตามขนาดถุง</div>
-        <div class="mini-chart-rows">
-          <div class="bar-row" data-weight="100">
-            <span class="bar-label"><span class="current-dot" aria-hidden="true"></span>100 ก.</span>
-            <span class="bar-track"><span class="bar-fill" id="bar-100"></span></span>
-            <span class="bar-value" id="barValue-100">-</span>
-          </div>
-          <div class="bar-row" data-weight="200">
-            <span class="bar-label"><span class="current-dot" aria-hidden="true"></span>200 ก.</span>
-            <span class="bar-track"><span class="bar-fill" id="bar-200"></span></span>
-            <span class="bar-value" id="barValue-200">-</span>
-          </div>
-          <div class="bar-row" data-weight="250">
-            <span class="bar-label"><span class="current-dot" aria-hidden="true"></span>250 ก.</span>
-            <span class="bar-track"><span class="bar-fill" id="bar-250"></span></span>
-            <span class="bar-value" id="barValue-250">-</span>
-          </div>
-          <div class="bar-row" data-weight="500">
-            <span class="bar-label"><span class="current-dot" aria-hidden="true"></span>500 ก.</span>
-            <span class="bar-track"><span class="bar-fill" id="bar-500"></span></span>
-            <span class="bar-value" id="barValue-500">-</span>
-          </div>
+      <div class="insight">
+        <p class="insight-text" id="insightText">-</p>
+        <div class="insight-ref">
+          <label for="cafePrice">ราคากาแฟร้านที่ใช้เทียบ (บาท/แก้ว)</label>
+          <input type="number" id="cafePrice" value="60" min="0" step="any" inputmode="decimal">
         </div>
       </div>
-    </div>
-  </div>
-
-  <button type="button" id="monthlyToggle" class="disclosure-btn" aria-expanded="false" aria-controls="monthlyPanel">
-    <span>ประมาณการค่าใช้จ่ายต่อเดือน</span>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
-  </button>
-  <div class="disclosure-panel" id="monthlyPanel" hidden>
-    <div class="field">
-      <label for="cupsPerDay">ดื่มกี่แก้วต่อวัน</label>
-      <input type="number" id="cupsPerDay" value="1" min="0" step="1" inputmode="numeric">
-      <div class="chip-group" id="cupsPerDayChips">
-        <button type="button" class="chip" data-value="1" aria-pressed="true">1 แก้ว</button>
-        <button type="button" class="chip" data-value="2" aria-pressed="false">2 แก้ว</button>
-        <button type="button" class="chip" data-value="3" aria-pressed="false">3 แก้ว</button>
-        <button type="button" class="chip" data-value="4" aria-pressed="false">4 แก้ว</button>
-      </div>
-    </div>
-    <div class="result-row">
-      <span class="result-label">ค่าใช้จ่ายต่อเดือน (30 วัน)</span>
-      <span class="result-value accent" id="monthlyCost">-</span>
     </div>
   </div>
 
@@ -767,37 +757,45 @@
   const priceErrorEl = document.getElementById('priceError');
   const cupsPerDayInput = document.getElementById('cupsPerDay');
   const cupsPerDayChips = document.querySelectorAll('#cupsPerDayChips .chip');
+  const brewChips = document.querySelectorAll('#brewChips .chip');
+  const cafePriceInput = document.getElementById('cafePrice');
+  const insightTextEl = document.getElementById('insightText');
+  const cupRowEl = document.getElementById('cupRow');
+  const usageMoodEl = document.getElementById('usageMood');
 
   const pricePerGramEl = document.getElementById('pricePerGram');
   const pricePerCupEl = document.getElementById('pricePerCup');
   const cupsEstimateEl = document.getElementById('cupsEstimate');
   const monthlyCostEl = document.getElementById('monthlyCost');
 
-  const monthlyToggle = document.getElementById('monthlyToggle');
-  const monthlyPanel = document.getElementById('monthlyPanel');
   const themeToggle = document.getElementById('themeToggle');
   const themeColorMeta = document.getElementById('themeColorMeta');
   const copyBtn = document.getElementById('copyBtn');
   const resetBtn = document.getElementById('resetBtn');
   const statusMsg = document.getElementById('statusMsg');
 
-  const barWeights = [100, 200, 250, 500];
-  const barRows = Object.fromEntries(barWeights.map(w => [w, document.querySelector(`.bar-row[data-weight="${w}"]`)]));
-  const barFills = Object.fromEntries(barWeights.map(w => [w, document.getElementById(`bar-${w}`)]));
-  const barValues = Object.fromEntries(barWeights.map(w => [w, document.getElementById(`barValue-${w}`)]));
-
   const STORAGE_KEY = 'coffee-calc-values';
   const THEME_KEY = 'coffee-calc-theme';
-  const DEFAULTS = { price: '180', weight: '250', usage: '16', cupsPerDay: '1' };
+  const DEFAULTS = { price: '180', weight: '250', usage: '16', cupsPerDay: '1', cafePrice: '60' };
+  const MAX_CUP_ICONS = 20;
+  const USAGE_MOODS = [
+    [9.5, 'เบา ๆ ละมุน ๆ 😌'],
+    [14.5, 'กำลังดี ดื่มได้ทั้งวัน ☕'],
+    [19.5, 'เข้มแบบบาริสต้า 😎'],
+    [27.5, 'เข้มจัดจ้าน 🔥'],
+    [Infinity, 'ตาสว่างยันเช้า ⚡']
+  ];
   let statusTimer = null;
-  let monthlyPanelOpened = false;
+  let insightCopyText = '';
+  let prevCupCount = -1;
 
   function saveValues() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       price: priceInput.value,
       weight: weightInput.value,
       usage: usageInput.value,
-      cupsPerDay: cupsPerDayInput.value
+      cupsPerDay: cupsPerDayInput.value,
+      cafePrice: cafePriceInput.value
     }));
   }
 
@@ -809,6 +807,7 @@
       if (saved.weight) weightInput.value = saved.weight;
       if (saved.usage) usageInput.value = saved.usage;
       if (saved.cupsPerDay) cupsPerDayInput.value = saved.cupsPerDay;
+      if (saved.cafePrice) cafePriceInput.value = saved.cafePrice;
     } catch (e) {
       // ignore corrupted storage
     }
@@ -832,6 +831,15 @@
     });
   }
 
+  function updateBrewChips() {
+    const val = parseFloat(usageInput.value);
+    brewChips.forEach(chip => {
+      const isActive = parseFloat(chip.dataset.value) === val;
+      chip.classList.toggle('active', isActive);
+      chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  }
+
   function updateUsageSlider() {
     const min = parseFloat(usageInput.min);
     const max = parseFloat(usageInput.max);
@@ -839,7 +847,15 @@
     const percent = ((val - min) / (max - min)) * 100;
     usageInput.style.background =
       `linear-gradient(to right, var(--accent) ${percent}%, var(--input-border) ${percent}%)`;
-    usageValueEl.textContent = `${formatNumber(val, val % 1 === 0 ? 0 : 1)} ก.`;
+    usageValueEl.textContent = `${formatNumber(val, val % 1 === 0 ? 0 : 1)} g`;
+
+    const mood = (USAGE_MOODS.find(m => val <= m[0]) || USAGE_MOODS[USAGE_MOODS.length - 1])[1];
+    if (usageMoodEl.textContent !== mood) {
+      usageMoodEl.textContent = mood;
+      usageMoodEl.classList.remove('swap');
+      void usageMoodEl.offsetWidth;
+      usageMoodEl.classList.add('swap');
+    }
   }
 
   weightChips.forEach(chip => {
@@ -854,6 +870,15 @@
     chip.addEventListener('click', () => {
       cupsPerDayInput.value = chip.dataset.value;
       updateCupsPerDayChips();
+      calculate();
+    });
+  });
+
+  brewChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      usageInput.value = chip.dataset.value;
+      updateBrewChips();
+      updateUsageSlider();
       calculate();
     });
   });
@@ -906,6 +931,75 @@
     el.classList.add('pulse');
   }
 
+  function updateCupRow(cups) {
+    if (cups === null || !isFinite(cups) || cups <= 0) {
+      cupRowEl.innerHTML = '';
+      cupRowEl.hidden = true;
+      prevCupCount = -1;
+      return;
+    }
+    const whole = Math.floor(cups);
+    const shown = Math.min(whole, MAX_CUP_ICONS);
+    let html = '';
+    for (let i = 0; i < shown; i++) {
+      const isNew = i >= prevCupCount;
+      const delay = isNew ? Math.min(i - Math.max(prevCupCount, 0), 8) * 30 : 0;
+      html += `<span class="cup${isNew ? ' pop' : ''}"${delay ? ` style="animation-delay:${delay}ms"` : ''}>☕</span>`;
+    }
+    if (whole < MAX_CUP_ICONS && cups - whole >= 0.25) {
+      html += '<span class="cup faded">☕</span>';
+    }
+    if (whole > MAX_CUP_ICONS) {
+      html += `<span class="cup-more">+${formatNumber(whole - MAX_CUP_ICONS, 0)} แก้ว</span>`;
+    }
+    cupRowEl.innerHTML = html;
+    cupRowEl.hidden = false;
+    prevCupCount = shown;
+  }
+
+  function updateInsight(pricePerCup, cupsPerDay) {
+    const cafePrice = parseFloat(cafePriceInput.value);
+    if (pricePerCup === null || !isFinite(cafePrice) || cafePrice <= 0) {
+      insightTextEl.textContent = 'กรอกข้อมูลให้ครบเพื่อดูว่าชงเองประหยัดกว่าซื้อร้านแค่ไหน';
+      insightCopyText = '';
+      return;
+    }
+    const saving = cafePrice - pricePerCup;
+    const cups = (isFinite(cupsPerDay) && cupsPerDay > 0) ? cupsPerDay : 1;
+    if (saving > 0.005) {
+      const times = cafePrice / pricePerCup;
+      const monthly = saving * cups * 30;
+      insightTextEl.innerHTML = `ชงเองถูกกว่ากาแฟร้านถึง <strong>${formatNumber(times, 1)} เท่า</strong> — ประหยัดราว <strong>${formatNumber(monthly, 0)} บาท/เดือน</strong> (${formatNumber(cups, 0)} แก้ว/วัน) ✨`;
+      insightCopyText = `ชงเองถูกกว่ากาแฟร้าน (${formatNumber(cafePrice, 0)} บาท/แก้ว) ${formatNumber(times, 1)} เท่า · ประหยัดราว ${formatNumber(monthly, 0)} บาท/เดือน`;
+    } else if (saving < -0.005) {
+      insightTextEl.innerHTML = `แก้วนี้แพงกว่ากาแฟร้าน <strong>${formatNumber(-saving, 2)} บาท/แก้ว</strong> — สายพรีเมียมตัวจริง 😎`;
+      insightCopyText = '';
+    } else {
+      insightTextEl.textContent = 'ราคาพอ ๆ กับกาแฟร้านเลย ☕';
+      insightCopyText = '';
+    }
+  }
+
+  function celebrate(originEl, emojis) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rect = originEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    for (let i = 0; i < 10; i++) {
+      const p = document.createElement('span');
+      p.className = 'burst-particle';
+      p.textContent = emojis[i % emojis.length];
+      p.style.left = `${cx}px`;
+      p.style.top = `${cy}px`;
+      p.style.setProperty('--dx', `${(Math.random() * 2 - 1) * 90}px`);
+      p.style.setProperty('--dy', `${-(40 + Math.random() * 70)}px`);
+      p.style.setProperty('--rot', `${(Math.random() * 2 - 1) * 200}deg`);
+      p.style.animationDelay = `${i * 15}ms`;
+      document.body.appendChild(p);
+      p.addEventListener('animationend', () => p.remove());
+    }
+  }
+
   function calculate() {
     saveValues();
     const price = parseFloat(priceInput.value);
@@ -923,13 +1017,13 @@
     priceErrorEl.classList.toggle('visible', priceInvalid);
     priceInput.setAttribute('aria-invalid', priceInvalid ? 'true' : 'false');
 
-    updateBarChart(price, usage, weight);
-
     if (priceInvalid || weightInvalid) {
       animateNumber(pricePerGramEl, null);
       animateNumber(pricePerCupEl, null);
       animateNumber(cupsEstimateEl, null);
       animateNumber(monthlyCostEl, null);
+      updateCupRow(null);
+      updateInsight(null);
       return;
     }
 
@@ -941,6 +1035,8 @@
       const cupsEstimate = weight / usage;
       animateNumber(pricePerCupEl, pricePerCup, 2, 'บาท');
       animateNumber(cupsEstimateEl, cupsEstimate, 1, 'แก้ว');
+      updateCupRow(cupsEstimate);
+      updateInsight(pricePerCup, cupsPerDay);
 
       if (isFinite(cupsPerDay) && cupsPerDay >= 0) {
         const monthlyCost = pricePerCup * cupsPerDay * 30;
@@ -952,30 +1048,9 @@
       animateNumber(pricePerCupEl, null);
       animateNumber(cupsEstimateEl, null);
       animateNumber(monthlyCostEl, null);
+      updateCupRow(null);
+      updateInsight(null);
     }
-  }
-
-  function updateBarChart(price, usage, currentWeight) {
-    const priceOk = isFinite(price) && price >= 0;
-    const usageOk = isFinite(usage) && usage > 0;
-
-    const values = barWeights.map(w => (priceOk && usageOk) ? (price / w) * usage : null);
-    const maxValue = Math.max(...values.filter(v => v !== null), 0);
-
-    barWeights.forEach((w, i) => {
-      const value = values[i];
-      const isCurrent = isFinite(currentWeight) && currentWeight === w;
-      barRows[w].classList.toggle('current', isCurrent);
-      barRows[w].setAttribute('aria-current', isCurrent ? 'true' : 'false');
-      if (value === null) {
-        barFills[w].style.width = '0%';
-        barValues[w].textContent = '-';
-      } else {
-        const pct = maxValue > 0 ? (value / maxValue) * 100 : 0;
-        barFills[w].style.width = `${pct}%`;
-        barValues[w].textContent = `${formatNumber(value, 2)} บาท`;
-      }
-    });
   }
 
   function showStatus(message) {
@@ -990,13 +1065,6 @@
     themeColorMeta.setAttribute('content', theme === 'light' ? '#f6f3ee' : '#0d0d0d');
   }
 
-  monthlyToggle.addEventListener('click', () => {
-    const isOpen = monthlyToggle.getAttribute('aria-expanded') === 'true';
-    monthlyToggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
-    monthlyPanel.hidden = isOpen;
-    if (!isOpen) monthlyPanelOpened = true;
-  });
-
   themeToggle.addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme') || 'dark';
     const next = current === 'light' ? 'dark' : 'light';
@@ -1006,18 +1074,20 @@
 
   copyBtn.addEventListener('click', async () => {
     const lines = [
-      `ราคาต่อกรัม: ${pricePerGramEl.textContent}`,
       `ราคาต่อแก้ว: ${pricePerCupEl.textContent}`,
-      `ชงได้ประมาณ: ${cupsEstimateEl.textContent}`
+      `ราคาต่อกรัม: ${pricePerGramEl.textContent}`,
+      `ชงได้ประมาณ: ${cupsEstimateEl.textContent}`,
+      `ค่าใช้จ่ายต่อเดือน (30 วัน): ${monthlyCostEl.textContent}`
     ];
-    if (monthlyPanelOpened) {
-      lines.push(`ค่าใช้จ่ายต่อเดือน (30 วัน): ${monthlyCostEl.textContent}`);
+    if (insightCopyText) {
+      lines.push(insightCopyText);
     }
     const summary = lines.join('\n');
 
     try {
       await navigator.clipboard.writeText(summary);
       showStatus('คัดลอกผลลัพธ์แล้ว ✓');
+      celebrate(copyBtn, ['☕', '✨']);
     } catch (e) {
       showStatus('คัดลอกไม่สำเร็จ กรุณาลองใหม่');
     }
@@ -1028,17 +1098,17 @@
     weightInput.value = DEFAULTS.weight;
     usageInput.value = DEFAULTS.usage;
     cupsPerDayInput.value = DEFAULTS.cupsPerDay;
-    monthlyPanel.hidden = true;
-    monthlyToggle.setAttribute('aria-expanded', 'false');
-    monthlyPanelOpened = false;
+    cafePriceInput.value = DEFAULTS.cafePrice;
     updateWeightChips();
     updateCupsPerDayChips();
+    updateBrewChips();
     updateUsageSlider();
     calculate();
     showStatus('รีเซ็ตค่าเริ่มต้นแล้ว');
   });
 
   priceInput.addEventListener('input', calculate);
+  cafePriceInput.addEventListener('input', calculate);
 
   weightInput.addEventListener('input', () => {
     updateWeightChips();
@@ -1046,6 +1116,7 @@
   });
 
   usageInput.addEventListener('input', () => {
+    updateBrewChips();
     updateUsageSlider();
     calculate();
   });
@@ -1059,6 +1130,7 @@
   loadValues();
   updateWeightChips();
   updateCupsPerDayChips();
+  updateBrewChips();
   updateUsageSlider();
   calculate();
 </script>
